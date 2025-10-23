@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = 'artursul95/guess-number'   // твой репозиторий на DockerHub
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -11,16 +15,19 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-
-                    docker.build('guess-number')
+                    docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
                 }
             }
         }
 
-        stage('Run Container (Optional)') {
+        stage('Push to DockerHub') {
             steps {
                 script {
-                    sh 'docker run --rm guess-number'
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-login') {
+                        def image = docker.image("${IMAGE_NAME}:${BUILD_NUMBER}")
+                        image.push()
+                        image.push('latest')
+                    }
                 }
             }
         }
