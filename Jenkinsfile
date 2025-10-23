@@ -11,17 +11,16 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build('artursul95/guessnum:latest')
+
+                    docker.build('guess-number')
                 }
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Run Container (Optional)') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-login') {
-                        docker.image('artursul95/guessnum:latest').push()
-                    }
+                    sh 'docker run --rm guess-number'
                 }
             }
         }
