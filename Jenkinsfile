@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = 'artursul95/guess-number'   // твой репозиторий на DockerHub
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -15,18 +11,16 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
+                    docker.build('artursul95/guess-number:latest')
                 }
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Push Docker Image') {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-login') {
-                        def image = docker.image("${IMAGE_NAME}:${BUILD_NUMBER}")
-                        image.push()
-                        image.push('latest')
+                        docker.image('artursul95/guess-number:latest').push()
                     }
                 }
             }
