@@ -25,5 +25,16 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Minikube') {
+            steps {
+                script {
+
+                    sh 'kubectl delete pod myapp-pod --ignore-not-found=true'
+                    sh 'kubectl apply -f myapp.yaml'
+                    sh 'kubectl get pods'
+                }
+            }
+        }
     }
 }
