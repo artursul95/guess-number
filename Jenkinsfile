@@ -52,5 +52,15 @@ pipeline {
                 }
             }
         }
+        stage('Cleanup') {
+            steps {
+                sh '''
+                    # Удалить старые образы
+                    docker system prune -f --filter "until=24h"
+                    # Удалить dangling images
+                    docker image prune -f
+                '''
+            }
+        }
     }
 }
