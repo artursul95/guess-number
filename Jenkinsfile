@@ -7,24 +7,34 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('Check Python') {
             steps {
-                git branch: 'main',
-                url: 'https://github.com/artursul95/guess-number.git'
-
+                sh '''
+                    python --version
+                    pip --version
+                '''
             }
         }
 
         stage('Test') {
             steps {
                 sh '''
-                    echo "Running tests..."
-                    python --version
+                    echo "Checking files..."
+                    ls -la
+
+                    if [ -f "main.py" ]; then
+                        echo "✅ main.py found"
+                        # Простой тест
+                        python -c "print('Python is working!')"
+                    else
+                        echo "❌ main.py not found!"
+                        exit 1
+                    fi
                 '''
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
                 script {
                     docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
@@ -32,33 +42,15 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Push') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
                         docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
-                        // Также пушим с тегом latest
                         docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push('latest')
                     }
                 }
             }
-        }
-
-        stage('Cleanup') {
-            steps {
-                sh '''
-                    docker image prune -f
-                '''
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline succeeded!'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
