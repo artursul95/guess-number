@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guess-number-game
+  labels:
+    app: guess-number-game
+    student: artur-suleymanov  # Основная метка для идентификации
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guess-number-game
+  template:
+    metadata:
+      labels:
+        app: guess-number-game
+        student: artur-suleymanov  # Такая же метка здесь
+    spec:
+      containers:
+      - name: guess-number-game
+        image: artursul95/guess-number-game:latest  # Образ из прошлой ДЗ
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80

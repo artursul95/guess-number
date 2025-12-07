@@ -62,5 +62,42 @@ pipeline {
                 '''
             }
         }
+        stage('Deploy to Minikube') {
+            steps {
+                sh '''
+                    echo "=== Deploying to Minikube ==="
+
+                    # Применяем деплоймент
+                    kubectl apply -f k8s/
+
+                    # Ждем готовности
+                    sleep 10
+
+                    # Проверяем
+                    kubectl get deployment guess-number-game
+                '''
+            }
+        }
+
+
+        stage('Show Info for Teacher') {
+            steps {
+                sh '''
+
+                    echo "1. Kubernetes Node (My Laptop):"
+                    kubectl get nodes -o custom-columns=NAME:.metadata.name
+
+
+                '''
+            }
+        }
+    }
+    post {
+        success {
+            echo '✅ Pipeline succeeded!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
+        }
     }
 }
